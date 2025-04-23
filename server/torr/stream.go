@@ -16,6 +16,8 @@ import (
 	mt "server/mimetype"
 	sets "server/settings"
 	"server/torr/state"
+
+	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
 func (t *Torrent) Stream(fileID int, req *http.Request, resp http.ResponseWriter) error {
@@ -50,6 +52,12 @@ func (t *Torrent) Stream(fileID int, req *http.Request, resp http.ResponseWriter
 	if int64(sets.MaxSize) > 0 && file.Length() > int64(sets.MaxSize) {
 		log.Println("file", file.DisplayPath(), "size exceeded max allowed", sets.MaxSize, "bytes")
 		return fmt.Errorf("file size exceeded max allowed %d bytes", sets.MaxSize)
+	}
+
+	if err := ffmpeg.Input(file.Path()).
+		Output(file.Path(), ffmpeg.KwArgs{"c:v": "copy", "c:a": "copy"}).
+		OverWriteOutput().ErrorToStdOut().Run(); err != nil {
+		return fmt.Errorf("error while implementing Hisense fix: %s", err)
 	}
 
 	reader := t.NewReader(file)
