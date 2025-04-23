@@ -254,20 +254,11 @@ function getLatestRelease() {
 
 function installTorrServer() {
   [[ $lang == "en" ]] && echo -e " Install and configure TorrServer…" || echo -e " Устанавливаем и настраиваем TorrServer…"
-  if checkInstalled; then
-    if ! checkInstalledVersion; then
-      [[ $lang == "en" ]] && read -p " Want to update TorrServer? ($(colorize green Y)es/$(colorize yellow N)o) " answer_up </dev/tty || read -p " Хотите обновить TorrServer? ($(colorize green Y)es/$(colorize yellow N)o) " answer_up </dev/tty
-      if [ "$answer_up" != "${answer_up#[YyДд]}" ]; then
-        UpdateVersion
-      fi
-    fi
-  fi
   binName="TorrServer-linux-${architecture}"
   [[ ! -d "$dirInstall" ]] && mkdir -p ${dirInstall}
   [[ ! -d "/usr/local/lib/systemd/system" ]] && mkdir -p "/usr/local/lib/systemd/system"
   urlBin="https://github.com/YouROK/TorrServer/releases/latest/download/${binName}"
   if [[ ! -f "$dirInstall/$binName" ]] | [[ ! -x "$dirInstall/$binName" ]] || [[ $(stat -c%s "$dirInstall/$binName" 2>/dev/null) -eq 0 ]]; then
-    curl -L --progress-bar -# -o "$dirInstall/$binName" "$urlBin"
     chmod +x "$dirInstall/$binName"
   fi
   cat << EOF > $dirInstall/$serviceName.service
